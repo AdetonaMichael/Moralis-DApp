@@ -7,6 +7,7 @@ Moralis.start({ serverUrl, appId });
 let homepage = "http://127.0.0.1:5500/signin.html";
 if(Moralis.User.current() == null && window.location.href != homepage){
     document.querySelector('body').style.display = 'none';
+    // document.body.style.display = 'none';
     window.location.href = "signin.html";
 }
 
@@ -35,7 +36,7 @@ getTransactions = async ()=>{
     address: "0x3459f688066E251499D5AD948dA9c3aA0e15e890",
   };
   const transactions = await Moralis.Web3API.account.getTransactions(options);
-  console.log(transactions);
+
   if(transactions.total >0){
       let table = `
       <table class="table table-striped">
@@ -77,10 +78,12 @@ getTransactions = async ()=>{
 
 const ethbalance = await Moralis.Web3API.account.getNativeBalance({chain:""});
 const ropstenbalance = await Moralis.Web3API.account.getNativeBalance({chain:"ropsten"});
-const rinkebybalance = await Moralis.Web3API.account.getNativeBalance({options:"rinkeby"});
+const rinkebybalance = await Moralis.Web3API.account.getNativeBalance({chain:"rinkeby"});
+const bscbalance = await Moralis.Web3API.account.getNativeBalance({chain: "bsc"});
 console.log((ethbalance.balance/1e18).toFixed(5)+ " ETH");
 console.log((ropstenbalance.balance/1e18).toFixed(5)+ " ETH");
 console.log((rinkebybalance.balance/1e18).toFixed(5)+ " ETH");
+console.log((bscbalance.balance/1e18).toFixed(5)+ " BNB");
 
 let content = document.querySelector('#userbalances').innerHTML = `
 <table class="table table-striped">
@@ -103,6 +106,10 @@ let content = document.querySelector('#userbalances').innerHTML = `
        <th>Ether</th>
        <td>${(rinkebybalance.balance/1e18).toFixed(5)} ETH</td>
     </tr>
+    <tr>
+       <th>BNB</th>
+       <td>${(bscbalance.balance/1e18).toFixed(5)} BNB</td>
+    </tr>
 </tbody>
 <tbody id="theTransactions">
 
@@ -112,7 +119,6 @@ let content = document.querySelector('#userbalances').innerHTML = `
 }
 getnfts = async()=>{
     let nfts =  await Moralis.Web3API.account.getNFTs({chain: "rinkeby"});
-    console.log(nfts);
     let tableofNFTs = document.querySelector('#tableofnfts');
     if(nfts.result.length > 0){
         nfts.result.forEach(n=>{
@@ -129,7 +135,9 @@ getnfts = async()=>{
           `
           tableofNFTs.innerHTML += content;
         });
-    };
+    }else{
+        tableofNFTs.innerHTML = `<h3 style="text-align:center; color:red;">You Currently have not NFTs Associated with your accounts</h3>`
+    }
 }
 fixURL = (url)=>{
     if(url.startsWith("ipfs")){
